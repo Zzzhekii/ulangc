@@ -1,1 +1,6 @@
-/bootstrap/target
+bootstrap/debug/
+bootstrap/target/
+bootstrap/Cargo.lock
+**/*.rs.bk
+*.pdb
+
