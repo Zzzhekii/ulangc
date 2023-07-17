@@ -1,5 +1,5 @@
-use super::token::{Token, TokenData};
-use super::{SourcePos, SourceRange, SourceView};
+use crate::ast::token::{Token, TokenKind};
+use crate::ast::{SourcePos, SourceRange, SourceView};
 
 use std::collections::VecDeque;
 
@@ -199,22 +199,22 @@ impl<'i> Lexer<'i> {
         let Some(start_ch) = self.peek_ch(0) else { return None };
 
         match start_ch {
-            '.' => ret_tok1!(TokenData::Dot),
-            ',' => ret_tok1!(TokenData::Comma),
-            '(' => ret_tok1!(TokenData::LParen),
-            ')' => ret_tok1!(TokenData::RParen),
+            '.' => ret_tok1!(TokenKind::Dot),
+            ',' => ret_tok1!(TokenKind::Comma),
+            '(' => ret_tok1!(TokenKind::LParen),
+            ')' => ret_tok1!(TokenKind::RParen),
             '-' => {
 
-                ret_tok2!(TokenData::Minus,      [('=', TokenData::AssignMinus)])
+                ret_tok2!(TokenKind::Minus,      [('=', TokenKind::AssignMinus)])
             },
-            '+' => ret_tok2!(TokenData::Plus,       [('=', TokenData::AssignPlus)]),
-            '*' => ret_tok2!(TokenData::Mul,        [('=', TokenData::AssignMul)]),
-            '/' => ret_tok2!(TokenData::Div,        [('=', TokenData::AssignDiv)]),
-            '!' => ret_tok2!(TokenData::Not,        [('=', TokenData::NotEq)]),
-            '=' => ret_tok2!(TokenData::Assign,     [('=', TokenData::Equal)]),
-            '>' => ret_tok2!(TokenData::Greater,    [('=', TokenData::GreaterEq)]),
-            '<' => ret_tok2!(TokenData::Less,       [('=', TokenData::LessEq)]),
-            ':' => ret_tok2!(TokenData::Column,     [(':', TokenData::ScopeAccess)]),
+            '+' => ret_tok2!(TokenKind::Plus,       [('=', TokenKind::AssignPlus)]),
+            '*' => ret_tok2!(TokenKind::Mul,        [('=', TokenKind::AssignMul)]),
+            '/' => ret_tok2!(TokenKind::Div,        [('=', TokenKind::AssignDiv)]),
+            '!' => ret_tok2!(TokenKind::Not,        [('=', TokenKind::NotEq)]),
+            '=' => ret_tok2!(TokenKind::Assign,     [('=', TokenKind::Equal)]),
+            '>' => ret_tok2!(TokenKind::Greater,    [('=', TokenKind::GreaterEq)]),
+            '<' => ret_tok2!(TokenKind::Less,       [('=', TokenKind::LessEq)]),
+            ':' => ret_tok2!(TokenKind::Column,     [(':', TokenKind::ScopeAccess)]),
 
             '\'' => {
                 self.advance(1);
@@ -223,7 +223,7 @@ impl<'i> Lexer<'i> {
                 self.advance(1);
 
                 return Some(Token {
-                    data: TokenData::Str(&self.input[start_cur + 1..self.cursor - 1]),
+                    data: TokenKind::Str(&self.input[start_cur + 1..self.cursor - 1]),
                     view: SourceView {
                         range: SourceRange {
                             start: start_pos,
@@ -244,17 +244,17 @@ impl<'i> Lexer<'i> {
         }
 
         match ident {
-            "do" =>     ret_kw!(TokenData::KwDo),
-            "end" =>    ret_kw!(TokenData::KwEnd),
-            "static" => ret_kw!(TokenData::KwStatic),
-            "const" =>  ret_kw!(TokenData::KwConst),
-            "let" =>    ret_kw!(TokenData::KwLet),
-            "fn" =>     ret_kw!(TokenData::KwFn),
+            "do" =>     ret_kw!(TokenKind::KwDo),
+            "end" =>    ret_kw!(TokenKind::KwEnd),
+            "static" => ret_kw!(TokenKind::KwStatic),
+            "const" =>  ret_kw!(TokenKind::KwConst),
+            "let" =>    ret_kw!(TokenKind::KwLet),
+            "fn" =>     ret_kw!(TokenKind::KwFn),
             _ => (),
         }
 
         return Some(Token {
-            data: TokenData::Ident(ident),
+            data: TokenKind::Ident(ident),
             view: SourceView {
                 range: SourceRange {
                     start: start_pos,

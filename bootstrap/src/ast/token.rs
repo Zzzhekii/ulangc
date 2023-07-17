@@ -2,12 +2,12 @@ use super::SourceView;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Token<'t> {
-    pub data: TokenData<'t>,
+    pub data: TokenKind<'t>,
     pub view: SourceView<'t>,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum TokenData<'d> {
+pub enum TokenKind<'d> {
     // Keywords
     KwEnd,
     KwDo,

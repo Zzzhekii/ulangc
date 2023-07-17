@@ -1,17 +1,12 @@
 use super::Lexer;
 use super::ast::Ast;
 use super::Error;
-use super::token::TokenData;
+use super::token::TokenKind;
 
 use log::{debug};
 
 /// Intermediate error
 type ParseInterResult<'e> = Result<(), Error<'e>>;
-
-pub struct Parser<'l> {
-    lexer:  &'l mut Lexer<'l>,
-    ast:    Ast,
-}
 
 // Check how it's used and ig you'll get it >:( .
 macro_rules! common_cmp_td {
@@ -41,12 +36,18 @@ macro_rules! unwrap_tok_eof {
     };
 }
 
-impl<'l> Parser<'l> {
-    fn assert_seek_td(&mut self, offset: usize, td: TokenData<'l>) -> ParseInterResult<'l> {
+
+impl<'l> Parser<'l> {:
+    #[inline(always)]
+    fn error(&mut self, error: Error) {
+        self.errors.push();
+    }
+
+    fn assert_seek_td(&mut self, offset: usize, td: TokenKind<'l>) -> ParseInterResult<'l> {
         common_cmp_td!(td, unwrap_tok_eof!(self.lexer.seek(offset)).data)
     }
 
-    fn assert_peek_td(&mut self, offset: usize, td: TokenData<'l>) -> ParseInterResult<'l> {
+    fn assert_peek_td(&mut self, offset: usize, td: TokenKind<'l>) -> ParseInterResult<'l> {
         common_cmp_td!(td, unwrap_tok_eof!(self.lexer.peek(offset)).data)
     }
 
@@ -54,6 +55,7 @@ impl<'l> Parser<'l> {
         Self {
             ast: Ast::new(),
             lexer,
+            errors: Vec::new(),
         }
     }
 
@@ -76,11 +78,11 @@ impl<'l> Parser<'l> {
     fn parse_statement(&mut self) -> ParseInterResult<'l> {
         let cur_tok = unwrap_tok_eof!(self.lexer.seek(0));
         match cur_tok.data {
-            TokenData::KwStatic => self.parse_binding(BindType::Static)?,
-            TokenData::KwConst => self.parse_binding(BindType::Const)?,
-            TokenData::KwLet => self.parse_binding(BindType::Let)?,
+            TokenKind::KwStatic => self.parse_binding(BindType::Static)?,
+            TokenKind::KwConst => self.parse_binding(BindType::Const)?,
+            TokenKind::KwLet => self.parse_binding(BindType::Let)?,
             _ => return Err(Error::UnexpectedToken {
-                expected: vec![TokenData::KwStatic, TokenData::KwConst, TokenData::KwLet],
+                expected: vec![TokenKind::KwStatic, TokenKind::KwConst, TokenKind::KwLet],
                 got: cur_tok.data,
             })
         }
@@ -92,16 +94,16 @@ impl<'l> Parser<'l> {
         debug!("Parsing a binding of BindType '{:?}'...", bt);
 
         // Get the ident
-        self.assert_peek_td(0, TokenData::Ident(""))?;
-        let TokenData::Ident(ident) = self.lexer.peek(0).unwrap().data else { panic!() };
+        self.assert_peek_td(0, TokenKind::Ident(""))?;
+        let TokenKind::Ident(ident) = self.lexer.peek(0).unwrap().data else { panic!() };
         self.lexer.seek(0);
 
         let is_known_data_type = match unwrap_tok_eof!(self.lexer.seek(0)).data {
             // Type annotation
-            TokenData::Colon => {
+            TokenKind::Colon => {
                     true    
                 },
-            TokenData::
+            TokenKind::
             _ => (),
         }
 

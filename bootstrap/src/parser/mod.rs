@@ -1,46 +1,33 @@
-pub mod token;
-pub mod ast;
+// Common modules
+pub mod error;
 
-mod lexer;
-mod parser;
+// Lexer modules
+pub mod lexer;
 
-pub use lexer::Lexer;
-pub use parser::Parser;
+// Parser modules
+mod expr;
+mod stmt;
+mod scope;
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub struct SourcePos {
-    pub line:   usize,
-    pub column: usize,
+use crate::ast::Ast;
+
+pub type ParseResult<'a> = Result<Ast, error::Error<'a>>;
+
+pub struct Parser<'a> {
+    lexer:      &'a mut lexer::Lexer<'a>,
+    ast:        Ast,
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub struct SourceRange {
-    pub start:  SourcePos,
-    pub end:    SourcePos,
-}
+impl<'a> Parser<'a> {
+    fn new(lexer: &'a mut lexer::Lexer<'a>)-> Self {
+        Self {
+            lexer,
+            ast: Ast::new(),
+        }
+    }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub struct SourceView<'v> {
-    pub range: SourceRange,
-    pub view:  &'v str,
-}
-
-#[derive(thiserror::Error, Debug)]
-pub enum Error<'e> {
-    #[error("Expected character '{expected:?}', got '{got:?}'")]
-    UnexpectedChar {
-        expected: char,
-        got: char,
-    },
-    #[error("Expected token '{expected:?}', got '{got:?}'")]
-    UnexpectedToken {
-        expected: Vec<token::TokenData<'e>>,
-        got: token::TokenData<'e>,
-    },
-    #[error("Unexpected end of token stream")]
-    UnexpectedEndOfTokenStream,
-    #[error("Feature not yet implemented: '{0}'")]
-    NotImplemented(String),
-    #[error("Unreachable: '{0}'")]
-    Unreachable(String),
+    pub fn parse(lexer: &'a mut lexer::Lexer<'a>) -> ParseResult<'a> {
+        let mut parser = Self::new(lexer);
+        Ok(parser.ast)
+    }
 }
