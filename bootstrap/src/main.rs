@@ -1,6 +1,7 @@
-use ulangc::parser::{Parser, Lexer};
+use ulangc::parser::{Parser, lexer::Lexer};
 
 use env_logger;
+use log::error;
 
 fn main() {
     // Initialize the logger.
@@ -14,7 +15,7 @@ end");
     let _ast = match Parser::parse(&mut lexer) {
         Ok(ast) => ast,
         Err(err) => {
-            println!("{}", err);
+            error!("{}", err.kind);
             return
         }
     }; 
