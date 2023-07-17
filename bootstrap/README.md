@@ -1,7 +1,1 @@
-# Ulang Programming Language
-
-```
-static main = fn do
-    std.println('Hello, World!')
-end
-```
+# The bootstrap compiler for the Ulang Programming Language written in rust.
